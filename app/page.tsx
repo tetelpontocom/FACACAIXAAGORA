@@ -3,38 +3,90 @@
 import { useEffect } from "react"
 import { motion } from "framer-motion"
 import { Rocket, Sparkles, ShieldCheck, Star, Cpu, Lock } from "lucide-react"
-import Script from "next/script"
 
 declare global {
   interface Window {
     fbq: any
+    _fbq: any
   }
 }
 
 export default function FacacaixaAgora() {
-  // ====== PIXEL: listeners de eventos (cliques + scroll) ======
+  // ====== META PIXEL OTIMIZADO ======
   useEffect(() => {
-    const track = (name: string) => {
-      // @ts-ignore
-      if (typeof window.fbq === "function") window.fbq("track", name)
+    // Evita duplicar o pixel
+    if (!(window as any).fbq) {
+      !((f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) => {
+        if (f.fbq) return
+        n = f.fbq = () => {
+          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+        }
+        if (!f._fbq) f._fbq = n
+        n.push = n
+        n.loaded = true
+        n.version = "2.0"
+        n.queue = []
+        t = b.createElement(e)
+        t.async = true
+        t.src = v
+        s = b.getElementsByTagName(e)[0]
+        s.parentNode!.insertBefore(t, s)
+      })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js")
+      ;(window as any).fbq("init", "1305167264321996") // ✅ seu Pixel ID
+      ;(window as any).fbq("track", "PageView")
+    } else {
+      ;(window as any).fbq("track", "PageView")
     }
 
-    track("PageView")
+    // Evento customizado padrão Meta (substitui aviso antigo)
+    const engagementEvent = () => {
+      ;(window as any).fbq("trackCustom", "EngagementComplete", {
+        status: "user_engaged",
+        page: window.location.pathname,
+      })
+    }
 
-    const ctas = document.querySelectorAll('[data-cta="checkout"]')
-    ctas.forEach((el) => el.addEventListener("click", () => track("InitiateCheckout")))
+    // Dispara evento customizado após 15s de permanência
+    const timer = setTimeout(engagementEvent, 15000)
 
-    const miaLinks = document.querySelectorAll('[data-cta="minhaia"]')
-    miaLinks.forEach((el) => el.addEventListener("click", () => track("ViewContent")))
+    return () => clearTimeout(timer)
+  }, [])
 
-    const onScroll = () => {
-      if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 120) {
-        track("EngagementComplete")
-        window.removeEventListener("scroll", onScroll)
+  // ====== RASTREAMENTO DE EVENTOS ======
+  useEffect(() => {
+    const track = (name: string, params?: any) => {
+      if (typeof window.fbq === "function") {
+        window.fbq("track", name, params)
       }
     }
-    window.addEventListener("scroll", onScroll)
-    return () => window.removeEventListener("scroll", onScroll)
+
+    // Rastreia cliques nos CTAs de checkout
+    const ctas = document.querySelectorAll('[data-cta="checkout"]')
+    ctas.forEach((el) =>
+      el.addEventListener("click", () =>
+        track("InitiateCheckout", {
+          content_name: "Faça Caixa Agora",
+          value: 9.9,
+          currency: "BRL",
+        }),
+      ),
+    )
+
+    // Rastreia interesse no Minha IA (upsell)
+    const miaLinks = document.querySelectorAll('[data-cta="minhaia"]')
+    miaLinks.forEach((el) =>
+      el.addEventListener("click", () =>
+        track("ViewContent", {
+          content_name: "Minha IA",
+          content_type: "product",
+        }),
+      ),
+    )
+
+    return () => {
+      ctas.forEach((el) => el.removeEventListener("click", () => {}))
+      miaLinks.forEach((el) => el.removeEventListener("click", () => {}))
+    }
   }, [])
 
   const container = "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
@@ -47,25 +99,16 @@ export default function FacacaixaAgora() {
 
   return (
     <>
-      {/* META PIXEL */}
-      <Script
-        id="meta-pixel"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            !function(f,b,e,v,n,t,s){
-              if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)
-            }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
-            window.fbq('init', '1305167264321996');
-            window.fbq('track', 'PageView');
-          `,
-        }}
-      />
+      {/* NoScript fallback para Meta Pixel */}
+      <noscript>
+        <img
+          height="1"
+          width="1"
+          style={{ display: "none" }}
+          src="https://www.facebook.com/tr?id=1305167264321996&ev=PageView&noscript=1"
+          alt=""
+        />
+      </noscript>
 
       <div className="min-h-screen text-[#1a1a1a] font-sans bg-gradient-to-b from-[#FFD480] via-[#FFC2A6] to-[#FF8A80]">
         {/* HEADER */}
@@ -262,7 +305,7 @@ export default function FacacaixaAgora() {
               <Selo img="/images/selo-garantia-novo.png" label="Garantia de 7 dias" />
               <Selo img="/images/selos/seguro.png" label="Compra 100% segura" />
 
-              {/* Selo Kiwify customizado (sem imagem externa) */}
+              {/* Selo Kiwify customizado */}
               <div className="flex flex-col items-center gap-2 text-center">
                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 shadow-sm border border-green-100 w-32 h-32 flex flex-col items-center justify-center">
                   <Lock className="h-8 w-8 text-green-600 mb-2" />
