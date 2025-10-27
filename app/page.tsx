@@ -261,7 +261,16 @@ export default function FacacaixaAgora() {
             <div className="grid md:grid-cols-3 gap-6 items-center justify-items-center">
               <Selo img="/images/selo-garantia-novo.png" label="Garantia de 7 dias" />
               <Selo img="/images/selos/seguro.png" label="Compra 100% segura" />
-              <Selo img="/images/kiwify-logo.svg" label="Checkout Kiwify" />
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <img
+                    src="/images/pagamento-seguro.svg"
+                    alt="Checkout Seguro Kiwify"
+                    className="h-16 w-auto object-contain"
+                  />
+                </div>
+                <span className="text-xs text-neutral-600 font-medium">Checkout Seguro</span>
+              </div>
             </div>
           </div>
         </section>
@@ -348,7 +357,18 @@ function Depo({ name, text }: { name: string; text: string }) {
 function Selo({ img, label }: { img: string; label: string }) {
   return (
     <div className="flex flex-col items-center gap-2 text-center">
-      <img src={img || "/placeholder.svg"} alt={label} className="h-24 w-auto object-contain" />
+      <div className="bg-white rounded-lg p-4 shadow-sm">
+        <img
+          src={img || "/placeholder.svg"}
+          alt={label}
+          className="h-16 w-auto object-contain"
+          onError={(e) => {
+            // Fallback caso a imagem não carregue
+            ;(e.target as HTMLImageElement).style.display = "none"
+          }}
+        />
+      </div>
+      <span className="text-xs text-neutral-600 font-medium">{label}</span>
     </div>
   )
 }
