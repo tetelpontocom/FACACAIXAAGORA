@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { motion } from "framer-motion"
-import { Rocket, Sparkles, ShieldCheck, Star, Cpu } from "lucide-react"
+import { Rocket, Sparkles, ShieldCheck, Star, Cpu, Lock } from "lucide-react"
 import Script from "next/script"
 
 declare global {
@@ -261,15 +261,15 @@ export default function FacacaixaAgora() {
             <div className="grid md:grid-cols-3 gap-6 items-center justify-items-center">
               <Selo img="/images/selo-garantia-novo.png" label="Garantia de 7 dias" />
               <Selo img="/images/selos/seguro.png" label="Compra 100% segura" />
+
+              {/* Selo Kiwify customizado (sem imagem externa) */}
               <div className="flex flex-col items-center gap-2 text-center">
-                <div className="bg-white rounded-lg p-4 shadow-sm">
-                  <img
-                    src="/images/pagamento-seguro.svg"
-                    alt="Checkout Seguro Kiwify"
-                    className="h-16 w-auto object-contain"
-                  />
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 shadow-sm border border-green-100 w-32 h-32 flex flex-col items-center justify-center">
+                  <Lock className="h-8 w-8 text-green-600 mb-2" />
+                  <div className="text-green-900 font-bold text-sm leading-tight">Checkout</div>
+                  <div className="text-green-700 font-semibold text-xs">Kiwify</div>
                 </div>
-                <span className="text-xs text-neutral-600 font-medium">Checkout Seguro</span>
+                <span className="text-xs text-neutral-600 font-medium">Pagamento Seguro</span>
               </div>
             </div>
           </div>
@@ -358,15 +358,7 @@ function Selo({ img, label }: { img: string; label: string }) {
   return (
     <div className="flex flex-col items-center gap-2 text-center">
       <div className="bg-white rounded-lg p-4 shadow-sm">
-        <img
-          src={img || "/placeholder.svg"}
-          alt={label}
-          className="h-16 w-auto object-contain"
-          onError={(e) => {
-            // Fallback caso a imagem não carregue
-            ;(e.target as HTMLImageElement).style.display = "none"
-          }}
-        />
+        <img src={img || "/placeholder.svg"} alt={label} className="h-20 w-auto object-contain" />
       </div>
       <span className="text-xs text-neutral-600 font-medium">{label}</span>
     </div>
