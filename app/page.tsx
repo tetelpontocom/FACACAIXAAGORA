@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { motion } from "framer-motion"
-import { Rocket, Sparkles, ShieldCheck, Star, Cpu, Lock } from "lucide-react"
+import { Rocket, Sparkles, ShieldCheck, Star, Cpu } from "lucide-react"
 
 declare global {
   interface Window {
@@ -185,7 +185,7 @@ export default function FacacaixaAgora() {
               className="w-full flex justify-center"
             >
               <img
-                src="/images/hero-faca-caixa.jpg"
+                src="/images/hero-facacaixaagora.png"
                 alt="Faça Caixa Agora - Libere renda extra"
                 className="w-full max-w-md rounded-3xl shadow-xl"
               />
@@ -302,18 +302,9 @@ export default function FacacaixaAgora() {
         <section className="bg-white/80">
           <div className={`${container} py-12`}>
             <div className="grid md:grid-cols-3 gap-6 items-center justify-items-center">
-              <Selo img="/images/selo-garantia-novo.png" label="Garantia de 7 dias" />
-              <Selo img="/images/selos/seguro.png" label="Compra 100% segura" />
-
-              {/* Selo Kiwify customizado */}
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 shadow-sm border border-green-100 w-32 h-32 flex flex-col items-center justify-center">
-                  <Lock className="h-8 w-8 text-green-600 mb-2" />
-                  <div className="text-green-900 font-bold text-sm leading-tight">Checkout</div>
-                  <div className="text-green-700 font-semibold text-xs">Kiwify</div>
-                </div>
-                <span className="text-xs text-neutral-600 font-medium">Pagamento Seguro</span>
-              </div>
+              <Selo img="/images/garantia-7-dias.png" label="Garantia de 7 dias" />
+              <Selo img="/images/pagamento-seguro.png" label="Pagamento Seguro" />
+              <Selo img="/images/kiwify-checkout-seguro.png" label="Checkout Seguro Kiwify" />
             </div>
           </div>
         </section>
@@ -401,7 +392,7 @@ function Selo({ img, label }: { img: string; label: string }) {
   return (
     <div className="flex flex-col items-center gap-2 text-center">
       <div className="bg-white rounded-lg p-4 shadow-sm">
-        <img src={img || "/placeholder.svg"} alt={label} className="h-20 w-auto object-contain" />
+        <img src={img || "/placeholder.svg"} alt={label} className="h-24 w-24 object-contain" />
       </div>
       <span className="text-xs text-neutral-600 font-medium">{label}</span>
     </div>
