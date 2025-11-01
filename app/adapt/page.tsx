@@ -4,7 +4,16 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import { ArrowRight, CheckCircle, Home } from "lucide-react"
 
-export default function FacacaixaagoraAdapt() {
+/**
+ * LP Faça Caixa Agora v2.1full
+ * - Detecção da origem (TetelPontocom)
+ * - CTA e headline dinâmicas
+ * - Botão de retorno funcional
+ * - Pixel Meta configurado
+ * - 100% responsiva (Mobile First)
+ */
+
+export default function FacacaixaAgoraV21Full() {
   const [origem, setOrigem] = useState<string | null>(null)
 
   useEffect(() => {
@@ -63,9 +72,9 @@ export default function FacacaixaagoraAdapt() {
   return (
     <main className="min-h-screen bg-[#FFF6EF] text-[#1F1A17] flex flex-col items-center justify-center px-6 py-16">
       <div className="max-w-6xl w-full grid md:grid-cols-2 gap-10 items-center">
-        {/* Texto */}
+        {/* Texto principal */}
         <div>
-          <h1 className="text-3xl font-bold leading-snug mb-3">{texto.titulo}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold leading-snug mb-3">{texto.titulo}</h1>
           <p className="text-[#4B423C] text-base mb-6">{texto.subtitulo}</p>
 
           <ul className="space-y-3 text-sm text-[#4B423C] mb-6">
@@ -107,7 +116,7 @@ export default function FacacaixaagoraAdapt() {
         </div>
       </div>
 
-      {/* Retorno à TetelPontocom */}
+      {/* Botão de retorno à TetelPontocom */}
       {origem === "tetelpontocom" && (
         <div className="mt-16 text-center">
           <a
