@@ -9,6 +9,7 @@ import { ArrowRight, CheckCircle, Home } from "lucide-react"
  * - Detecta origem (?origem=tetelpontocom) com fallback por referrer
  * - Persiste origem em sessionStorage para navegações subsequentes
  * - Render client-only (evita piscar/SSR)
+ * - Aguarda DOM pronto antes de detectar origem
  */
 
 export default function FacacaixaAgoraV212Full() {
@@ -16,36 +17,30 @@ export default function FacacaixaAgoraV212Full() {
   const [isFromTetel, setIsFromTetel] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
+    const detectOrigem = () => {
+      try {
+        const href = window.location.href.toLowerCase()
+        const ref = document.referrer?.toLowerCase() || ""
 
-    try {
-      const params = new URLSearchParams(window.location.search)
-      const q = params.get("origem")?.toLowerCase() ?? null
-      const ref = document.referrer?.toLowerCase() ?? ""
+        if (href.includes("origem=tetelpontocom") || ref.includes("tetelpontocom.tetel.online")) {
+          sessionStorage.setItem("tetel_origem", "tetelpontocom")
+          setIsFromTetel(true)
+          return
+        }
 
-      // 1) querystring
-      if (q === "tetelpontocom") {
-        sessionStorage.setItem("tetel_origem", "tetelpontocom")
-        setIsFromTetel(true)
-        return
+        const saved = sessionStorage.getItem("tetel_origem")
+        if (saved === "tetelpontocom") setIsFromTetel(true)
+      } catch (err) {
+        console.warn("Erro ao detectar origem:", err)
       }
-
-      // 2) sessionStorage (ex: navegação interna/refresh sem query)
-      const saved = sessionStorage.getItem("tetel_origem")
-      if (saved === "tetelpontocom") {
-        setIsFromTetel(true)
-        return
-      }
-
-      // 3) referrer (fallback)
-      if (ref.includes("tetelpontocom.tetel.online")) {
-        sessionStorage.setItem("tetel_origem", "tetelpontocom")
-        setIsFromTetel(true)
-        return
-      }
-    } catch {
-      // ignore
     }
+
+    // aguarda DOM pronto
+    if (document.readyState === "complete") detectOrigem()
+    else window.addEventListener("load", detectOrigem)
+
+    setMounted(true)
+    return () => window.removeEventListener("load", detectOrigem)
   }, [])
 
   useEffect(() => {
