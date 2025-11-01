@@ -18,28 +18,37 @@ export default function FacacaixaAgoraV21Full() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    setOrigem(params.get("origem"))
+    let o = params.get("origem")
+    // normaliza e fallback por referer
+    o = o?.toLowerCase() || (document.referrer.includes("tetelpontocom.tetel.online") ? "tetelpontocom" : null)
+    setOrigem(o)
+
+    // opcional: ajuda a depurar no console
+    try {
+      console.debug("[origem]", o, "ref", document.referrer)
+    } catch {}
   }, [])
 
+  const fromTetel = (origem ?? "").toLowerCase() === "tetelpontocom"
+
   // Textos dinâmicos conforme origem
-  const texto =
-    origem === "tetelpontocom"
-      ? {
-          titulo: "Comece seu primeiro passo com propósito",
-          subtitulo:
-            "O Faça Caixa Agora é parte do ecossistema Tetel — uma ferramenta criada para ajudar você a transformar ideias em resultados reais.",
-          descricao:
-            "Descubra como começar hoje mesmo com métodos simples e acessíveis. Ideal para quem quer gerar renda e desenvolver autonomia no digital.",
-          cta: "Explorar agora",
-        }
-      : {
-          titulo: "Faça Caixa Agora",
-          subtitulo:
-            "Comece hoje mesmo a gerar renda com ideias simples, digitais e acessíveis. Tudo pronto para colocar em prática.",
-          descricao:
-            "Aprenda como estruturar, divulgar e vender seus produtos ou serviços com estratégias validadas, sem precisar começar do zero.",
-          cta: "Quero começar agora",
-        }
+  const texto = fromTetel
+    ? {
+        titulo: "Comece seu primeiro passo com propósito",
+        subtitulo:
+          "O Faça Caixa Agora é parte do ecossistema Tetel — uma ferramenta criada para ajudar você a transformar ideias em resultados reais.",
+        descricao:
+          "Descubra como começar hoje mesmo com métodos simples e acessíveis. Ideal para quem quer gerar renda e desenvolver autonomia no digital.",
+        cta: "Explorar agora",
+      }
+    : {
+        titulo: "Faça Caixa Agora",
+        subtitulo:
+          "Comece hoje mesmo a gerar renda com ideias simples, digitais e acessíveis. Tudo pronto para colocar em prática.",
+        descricao:
+          "Aprenda como estruturar, divulgar e vender seus produtos ou serviços com estratégias validadas, sem precisar começar do zero.",
+        cta: "Quero começar agora",
+      }
 
   // Pixel padrão (PageView)
   useEffect(() => {
@@ -116,8 +125,7 @@ export default function FacacaixaAgoraV21Full() {
         </div>
       </div>
 
-      {/* Botão de retorno à TetelPontocom */}
-      {origem === "tetelpontocom" && (
+      {fromTetel && (
         <div className="mt-16 text-center">
           <a
             href="https://tetelpontocom.tetel.online"
