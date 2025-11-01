@@ -14,25 +14,19 @@ import { ArrowRight, CheckCircle, Home } from "lucide-react"
  */
 
 export default function FacacaixaAgoraV21Full() {
-  const [origem, setOrigem] = useState<string | null>(null)
+  const [isFromTetel, setIsFromTetel] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    let o = params.get("origem")
-    // normaliza e fallback por referer
-    o = o?.toLowerCase() || (document.referrer.includes("tetelpontocom.tetel.online") ? "tetelpontocom" : null)
-    setOrigem(o)
-
-    // opcional: ajuda a depurar no console
-    try {
-      console.debug("[origem]", o, "ref", document.referrer)
-    } catch {}
+    const origemParam = params.get("origem")?.toLowerCase()
+    const referrer = document.referrer?.toLowerCase() || ""
+    if (origemParam === "tetelpontocom" || referrer.includes("tetelpontocom")) {
+      setIsFromTetel(true)
+    }
   }, [])
 
-  const fromTetel = (origem ?? "").toLowerCase() === "tetelpontocom"
-
   // Textos dinâmicos conforme origem
-  const texto = fromTetel
+  const texto = isFromTetel
     ? {
         titulo: "Comece seu primeiro passo com propósito",
         subtitulo:
@@ -125,8 +119,8 @@ export default function FacacaixaAgoraV21Full() {
         </div>
       </div>
 
-      {fromTetel && (
-        <div className="mt-16 text-center">
+      {isFromTetel && (
+        <div className="mt-16 text-center animate-fade-in">
           <a
             href="https://tetelpontocom.tetel.online"
             className="inline-flex items-center gap-2 rounded-2xl bg-[#EEDFD2] text-[#1F1A17] px-6 py-3 text-base font-medium hover:bg-[#EBD2BF] transition"
