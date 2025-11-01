@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   description:
     "Aprenda o método simples e comprovado para fazer caixa com o que você já sabe. Ação, clareza e resultado — por apenas R$ 9,90.",
   icons: {
-    icon: "/favicon-capa.png",
-    apple: "/favicon-capa.png",
+    icon: "/favicon.png",
+    apple: "/favicon.png",
   },
   openGraph: {
     title: "Faça Caixa Agora · Tetel",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
       },
     ],
   },
-    generator: 'v0.app'
+  generator: "v0.app",
 }
 
 export default function RootLayout({
@@ -40,8 +40,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
-        <link rel="icon" type="image/png" href="/favicon-capa.png" />
-        <link rel="apple-touch-icon" href="/favicon-capa.png" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
       </head>
       <body className={inter.className}>{children}</body>
     </html>
