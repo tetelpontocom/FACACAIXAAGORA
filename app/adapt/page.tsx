@@ -5,56 +5,101 @@ import Image from "next/image"
 import { ArrowRight, CheckCircle, Home } from "lucide-react"
 
 /**
- * Faça Caixa Agora v2.1.3-Lite
- * ✅ Compatível com V0 Free (sem sessionStorage, document ou window direto fora do efeito)
- * ✅ Detecta origem via URL (?origem=tetelpontocom)
- * ✅ Exibe botão de retorno sem causar erros de render
- * ✅ SEO e pixel preservados
+ * Faça Caixa Agora v2.1.4-Safe+
+ * ✅ Compatível com V0 Free (sem erros de render)
+ * 🔄 Detecta origem via URL (?origem=tetelpontocom)
+ * 💾 Usa sessionStorage/referrer automaticamente se o ambiente permitir
+ * 🏠 Exibe botão "Voltar à TetelPontocom"
+ * 📈 SEO e Pixel preservados
  */
 
-export default function FacacaixaAgoraV213Lite() {
+export default function FacacaixaAgoraV214SafePlus() {
+  const [mounted, setMounted] = useState(false)
   const [isFromTetel, setIsFromTetel] = useState(false)
 
-  // Detecta a origem apenas no cliente, de forma segura
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
     try {
-      if (typeof window !== "undefined") {
-        const url = window.location.href.toLowerCase()
-        if (url.includes("origem=tetelpontocom")) {
+      const url = window.location.href.toLowerCase()
+      const params = new URLSearchParams(window.location.search)
+      const origemQuery = params.get("origem")?.toLowerCase()
+      const ref = document.referrer?.toLowerCase() ?? ""
+
+      // Preferência: parâmetro → sessionStorage → referrer
+      if (origemQuery === "tetelpontocom") {
+        if (typeof sessionStorage !== "undefined") {
+          sessionStorage.setItem("tetel_origem", "tetelpontocom")
+        }
+        setIsFromTetel(true)
+        return
+      }
+
+      if (typeof sessionStorage !== "undefined") {
+        const saved = sessionStorage.getItem("tetel_origem")
+        if (saved === "tetelpontocom") {
           setIsFromTetel(true)
+          return
         }
       }
-    } catch (e) {
-      console.warn("Falha ao detectar origem:", e)
-    }
-  }, [])
 
-  // Meta Pixel básico (não bloqueia o render)
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    if (!(window as any).fbq) {
-      !((f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) => {
-        if (f.fbq) return
-        n = f.fbq = () => {
-          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+      if (ref.includes("tetelpontocom.tetel.online")) {
+        if (typeof sessionStorage !== "undefined") {
+          sessionStorage.setItem("tetel_origem", "tetelpontocom")
         }
-        if (!f._fbq) f._fbq = n
-        n.push = n
-        n.loaded = !0
-        n.version = "2.0"
-        n.queue = []
-        t = b.createElement(e)
-        t.async = !0
-        t.src = v
-        s = b.getElementsByTagName(e)[0]
-        s.parentNode.insertBefore(t, s)
-      })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js")
-      ;(window as any).fbq("init", "1305167264321996")
-    }
-    ;(window as any).fbq("track", "PageView")
-  }, [])
+        setIsFromTetel(true)
+        return
+      }
 
-  const lead = (label: string) => (window as any).fbq?.("track", "Lead", { label })
+      // Fallback total
+      if (url.includes("origem=tetelpontocom")) {
+        setIsFromTetel(true)
+      }
+    } catch (e) {
+      console.warn("Origem não detectada:", e)
+    }
+  }, [mounted])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    try {
+      if (!(window as any).fbq) {
+        !((f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) => {
+          if (f.fbq) return
+          n = f.fbq = () => {
+            n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+          }
+          if (!f._fbq) f._fbq = n
+          n.push = n
+          n.loaded = !0
+          n.version = "2.0"
+          n.queue = []
+          t = b.createElement(e)
+          t.async = !0
+          t.src = v
+          s = b.getElementsByTagName(e)[0]
+          s.parentNode.insertBefore(t, s)
+        })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js")
+        ;(window as any).fbq("init", "1305167264321996")
+      }
+      ;(window as any).fbq("track", "PageView")
+    } catch (e) {
+      console.warn("Pixel não carregado:", e)
+    }
+  }, [mounted])
+
+  const lead = (label: string) => {
+    try {
+      ;(window as any).fbq?.("track", "Lead", { label })
+    } catch {}
+  }
+
+  if (!mounted) return null
 
   const texto = isFromTetel
     ? {
