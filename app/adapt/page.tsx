@@ -1,72 +1,23 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import Image from "next/image"
 import { ArrowRight, CheckCircle, Home } from "lucide-react"
+import { useSearchParams } from "next/navigation"
 
 /**
- * Faça Caixa Agora v2.1.4-Safe+
- * ✅ Compatível com V0 Free (sem erros de render)
- * 🔄 Detecta origem via URL (?origem=tetelpontocom)
- * 💾 Usa sessionStorage/referrer automaticamente se o ambiente permitir
- * 🏠 Exibe botão "Voltar à TetelPontocom"
- * 📈 SEO e Pixel preservados
+ * Faça Caixa Agora v2.1.5 – FreeLockSafe
+ * Compatível com V0 Free (sem window/document/sessionStorage)
+ * Detecta origem via SearchParams (?origem=tetelpontocom)
+ * Mostra botão de retorno dinâmico e preserva Pixel e SEO
  */
 
-export default function FacacaixaAgoraV214SafePlus() {
-  const [mounted, setMounted] = useState(false)
-  const [isFromTetel, setIsFromTetel] = useState(false)
+export default function FacacaixaAgoraV215FreeLockSafe() {
+  const searchParams = useSearchParams()
+  const origem = searchParams.get("origem")
+  const isFromTetel = origem === "tetelpontocom"
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    if (!mounted) return
-
-    try {
-      const url = window.location.href.toLowerCase()
-      const params = new URLSearchParams(window.location.search)
-      const origemQuery = params.get("origem")?.toLowerCase()
-      const ref = document.referrer?.toLowerCase() ?? ""
-
-      // Preferência: parâmetro → sessionStorage → referrer
-      if (origemQuery === "tetelpontocom") {
-        if (typeof sessionStorage !== "undefined") {
-          sessionStorage.setItem("tetel_origem", "tetelpontocom")
-        }
-        setIsFromTetel(true)
-        return
-      }
-
-      if (typeof sessionStorage !== "undefined") {
-        const saved = sessionStorage.getItem("tetel_origem")
-        if (saved === "tetelpontocom") {
-          setIsFromTetel(true)
-          return
-        }
-      }
-
-      if (ref.includes("tetelpontocom.tetel.online")) {
-        if (typeof sessionStorage !== "undefined") {
-          sessionStorage.setItem("tetel_origem", "tetelpontocom")
-        }
-        setIsFromTetel(true)
-        return
-      }
-
-      // Fallback total
-      if (url.includes("origem=tetelpontocom")) {
-        setIsFromTetel(true)
-      }
-    } catch (e) {
-      console.warn("Origem não detectada:", e)
-    }
-  }, [mounted])
-
-  useEffect(() => {
-    if (!mounted) return
-
     try {
       if (!(window as any).fbq) {
         !((f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) => {
@@ -88,18 +39,16 @@ export default function FacacaixaAgoraV214SafePlus() {
         ;(window as any).fbq("init", "1305167264321996")
       }
       ;(window as any).fbq("track", "PageView")
-    } catch (e) {
-      console.warn("Pixel não carregado:", e)
+    } catch {
+      /* ignora erros silenciosos */
     }
-  }, [mounted])
+  }, [])
 
   const lead = (label: string) => {
     try {
       ;(window as any).fbq?.("track", "Lead", { label })
     } catch {}
   }
-
-  if (!mounted) return null
 
   const texto = isFromTetel
     ? {
@@ -147,7 +96,7 @@ export default function FacacaixaAgoraV214SafePlus() {
           </a>
         </div>
 
-        {/* Imagem ilustrativa */}
+        {/* Imagem lateral */}
         <div className="flex justify-center">
           <Image
             src="/images/hero-facacaixaagora.png"
@@ -160,7 +109,7 @@ export default function FacacaixaAgoraV214SafePlus() {
         </div>
       </div>
 
-      {/* Botão de retorno */}
+      {/* Botão de retorno à TetelPontocom */}
       {isFromTetel && (
         <div className="mt-16 text-center">
           <a
