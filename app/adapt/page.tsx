@@ -5,46 +5,33 @@ import Image from "next/image"
 import { ArrowRight, CheckCircle, Home } from "lucide-react"
 
 /**
- * Faça Caixa Agora v2.1.2full
- * - Detecta origem (?origem=tetelpontocom) com fallback por referrer
- * - Persiste origem em sessionStorage para navegações subsequentes
- * - Render client-only (evita piscar/SSR)
- * - Aguarda DOM pronto antes de detectar origem
+ * Faça Caixa Agora v2.1.3-Lite
+ * ✅ Compatível com V0 Free (sem sessionStorage, document ou window direto fora do efeito)
+ * ✅ Detecta origem via URL (?origem=tetelpontocom)
+ * ✅ Exibe botão de retorno sem causar erros de render
+ * ✅ SEO e pixel preservados
  */
 
-export default function FacacaixaAgoraV212Full() {
-  const [mounted, setMounted] = useState(false)
+export default function FacacaixaAgoraV213Lite() {
   const [isFromTetel, setIsFromTetel] = useState(false)
 
+  // Detecta a origem apenas no cliente, de forma segura
   useEffect(() => {
-    const detectOrigem = () => {
-      try {
-        const href = window.location.href.toLowerCase()
-        const ref = document.referrer?.toLowerCase() || ""
-
-        if (href.includes("origem=tetelpontocom") || ref.includes("tetelpontocom.tetel.online")) {
-          sessionStorage.setItem("tetel_origem", "tetelpontocom")
+    try {
+      if (typeof window !== "undefined") {
+        const url = window.location.href.toLowerCase()
+        if (url.includes("origem=tetelpontocom")) {
           setIsFromTetel(true)
-          return
         }
-
-        const saved = sessionStorage.getItem("tetel_origem")
-        if (saved === "tetelpontocom") setIsFromTetel(true)
-      } catch (err) {
-        console.warn("Erro ao detectar origem:", err)
       }
+    } catch (e) {
+      console.warn("Falha ao detectar origem:", e)
     }
-
-    // aguarda DOM pronto
-    if (document.readyState === "complete") detectOrigem()
-    else window.addEventListener("load", detectOrigem)
-
-    setMounted(true)
-    return () => window.removeEventListener("load", detectOrigem)
   }, [])
 
+  // Meta Pixel básico (não bloqueia o render)
   useEffect(() => {
-    if (!mounted) return
+    if (typeof window === "undefined") return
     if (!(window as any).fbq) {
       !((f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) => {
         if (f.fbq) return
@@ -65,17 +52,15 @@ export default function FacacaixaAgoraV212Full() {
       ;(window as any).fbq("init", "1305167264321996")
     }
     ;(window as any).fbq("track", "PageView")
-  }, [mounted])
+  }, [])
 
   const lead = (label: string) => (window as any).fbq?.("track", "Lead", { label })
-
-  if (!mounted) return null
 
   const texto = isFromTetel
     ? {
         titulo: "Comece seu primeiro passo com propósito",
         subtitulo:
-          "O Faça Caixa Agora é parte do ecossistema Tetel — uma ferramenta criada para ajudar você a transformar ideias em resultados reais.",
+          "O Faça Caixa Agora é parte do ecossistema Tetel — criado para ajudar você a transformar ideias em resultados reais.",
         cta: "Explorar agora",
       }
     : {
@@ -88,7 +73,7 @@ export default function FacacaixaAgoraV212Full() {
   return (
     <main className="min-h-screen bg-[#FFF6EF] text-[#1F1A17] flex flex-col items-center justify-center px-6 py-16">
       <div className="max-w-6xl w-full grid md:grid-cols-2 gap-10 items-center">
-        {/* Texto */}
+        {/* Texto principal */}
         <div>
           <h1 className="text-3xl md:text-4xl font-bold leading-snug mb-3">{texto.titulo}</h1>
           <p className="text-[#4B423C] text-base mb-6">{texto.subtitulo}</p>
@@ -117,7 +102,7 @@ export default function FacacaixaAgoraV212Full() {
           </a>
         </div>
 
-        {/* Imagem */}
+        {/* Imagem ilustrativa */}
         <div className="flex justify-center">
           <Image
             src="/images/hero-facacaixaagora.png"
@@ -130,7 +115,7 @@ export default function FacacaixaAgoraV212Full() {
         </div>
       </div>
 
-      {/* Botão de retorno à TetelPontocom */}
+      {/* Botão de retorno */}
       {isFromTetel && (
         <div className="mt-16 text-center">
           <a
