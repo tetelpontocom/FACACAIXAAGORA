@@ -2,7 +2,8 @@
 
 import { useEffect } from "react"
 import { motion } from "framer-motion"
-import { Rocket, Sparkles, ShieldCheck, Star, Cpu } from "lucide-react"
+import { useSearchParams } from "next/navigation"
+import { Rocket, Sparkles, ShieldCheck, Star, Cpu, Home } from "lucide-react"
 
 declare global {
   interface Window {
@@ -12,9 +13,11 @@ declare global {
 }
 
 export default function FacacaixaAgora() {
-  // ====== META PIXEL OTIMIZADO ======
+  const searchParams = useSearchParams()
+  const origem = searchParams.get("origem")
+  const isFromTetel = origem === "tetelpontocom"
+
   useEffect(() => {
-    // Evita duplicar o pixel
     if (!(window as any).fbq) {
       !((f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) => {
         if (f.fbq) return
@@ -23,70 +26,18 @@ export default function FacacaixaAgora() {
         }
         if (!f._fbq) f._fbq = n
         n.push = n
-        n.loaded = true
+        n.loaded = !0
         n.version = "2.0"
         n.queue = []
         t = b.createElement(e)
-        t.async = true
+        t.async = !0
         t.src = v
         s = b.getElementsByTagName(e)[0]
-        s.parentNode!.insertBefore(t, s)
+        s.parentNode.insertBefore(t, s)
       })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js")
-      ;(window as any).fbq("init", "1305167264321996") // ✅ seu Pixel ID
-      ;(window as any).fbq("track", "PageView")
-    } else {
-      ;(window as any).fbq("track", "PageView")
+      ;(window as any).fbq("init", "1305167264321996")
     }
-
-    // Evento customizado padrão Meta (substitui aviso antigo)
-    const engagementEvent = () => {
-      ;(window as any).fbq("trackCustom", "EngagementComplete", {
-        status: "user_engaged",
-        page: window.location.pathname,
-      })
-    }
-
-    // Dispara evento customizado após 15s de permanência
-    const timer = setTimeout(engagementEvent, 15000)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  // ====== RASTREAMENTO DE EVENTOS ======
-  useEffect(() => {
-    const track = (name: string, params?: any) => {
-      if (typeof window.fbq === "function") {
-        window.fbq("track", name, params)
-      }
-    }
-
-    // Rastreia cliques nos CTAs de checkout
-    const ctas = document.querySelectorAll('[data-cta="checkout"]')
-    ctas.forEach((el) =>
-      el.addEventListener("click", () =>
-        track("InitiateCheckout", {
-          content_name: "Faça Caixa Agora",
-          value: 9.9,
-          currency: "BRL",
-        }),
-      ),
-    )
-
-    // Rastreia interesse no Minha IA (upsell)
-    const miaLinks = document.querySelectorAll('[data-cta="minhaia"]')
-    miaLinks.forEach((el) =>
-      el.addEventListener("click", () =>
-        track("ViewContent", {
-          content_name: "Minha IA",
-          content_type: "product",
-        }),
-      ),
-    )
-
-    return () => {
-      ctas.forEach((el) => el.removeEventListener("click", () => {}))
-      miaLinks.forEach((el) => el.removeEventListener("click", () => {}))
-    }
+    ;(window as any).fbq("track", "PageView")
   }, [])
 
   const container = "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
@@ -96,6 +47,14 @@ export default function FacacaixaAgora() {
   const MINHA_IA = "https://minhaia.tetel.online"
   const PRAVOCE = "https://pravoce.tetel.online"
   const INSTAGRAM = "https://instagram.com/tetelpontocom"
+
+  const textoOrigem = isFromTetel
+    ? {
+        titulo: "Comece seu primeiro passo com propósito",
+        subtitulo:
+          "O Faça Caixa Agora é parte do ecossistema Tetel — uma ferramenta criada para ajudar você a transformar ideias em resultados reais.",
+      }
+    : null
 
   return (
     <>
@@ -135,13 +94,21 @@ export default function FacacaixaAgora() {
           <div className={`${container} py-12 md:py-20 grid md:grid-cols-2 items-center gap-10`}>
             <div className="text-center md:text-left">
               <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-[#1a1a1a]">
-                Aprenda a <span className="underline decoration-[#1a1a1a]/30">fazer caixa</span> rápido com o que você
-                já tem.
+                {textoOrigem ? (
+                  textoOrigem.titulo
+                ) : (
+                  <>
+                    Aprenda a <span className="underline decoration-[#1a1a1a]/30">fazer caixa</span> rápido com o que
+                    você já tem.
+                  </>
+                )}
               </h1>
               <p className="mt-4 text-lg text-[#222]">
-                Método simples, humano e comprovado para transformar habilidades em renda real. Sem enrolação. Comece
-                hoje por
-                <strong> R$ 9,90</strong>.
+                {textoOrigem
+                  ? textoOrigem.subtitulo
+                  : "Método simples, humano e comprovado para transformar habilidades em renda real. Sem enrolação. Comece hoje por"}
+                {!textoOrigem && <strong> R$ 9,90</strong>}
+                {textoOrigem && "."}
               </p>
 
               <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-start justify-center">
@@ -152,7 +119,7 @@ export default function FacacaixaAgora() {
                   data-cta="checkout"
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1a1a1a] text-white px-6 py-3 text-sm font-semibold hover:opacity-90 transition shadow-lg"
                 >
-                  Começar agora — R$ 9,90
+                  {isFromTetel ? "Explorar agora" : "Começar agora — R$ 9,90"}
                 </a>
                 <button
                   onClick={() => {
@@ -327,6 +294,19 @@ export default function FacacaixaAgora() {
             </a>
           </div>
         </section>
+
+        {isFromTetel && (
+          <section className="bg-gradient-to-b from-[#FF8A80] to-[#FFD480]">
+            <div className={`${container} py-12 text-center`}>
+              <a
+                href="https://tetelpontocom.tetel.online"
+                className="inline-flex items-center gap-2 rounded-2xl bg-white/90 text-[#1a1a1a] px-6 py-3 text-base font-medium hover:bg-white transition shadow-lg"
+              >
+                <Home className="h-5 w-5" /> Voltar à TetelPontocom
+              </a>
+            </div>
+          </section>
+        )}
 
         {/* FOOTER */}
         <footer className="bg-white/70 border-t border-white/40">
